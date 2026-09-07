@@ -25,14 +25,22 @@ body {
 
 @media (max-width: 760px) {
   :root {
+    --home-reserve: 130px;
     --photo-top: max(20px, calc(12dvh - 48px));
     --photo-h: clamp(
       120px,
       calc(
-        100dvh - var(--photo-top) - 146px - var(--home-text, 300px) - env(safe-area-inset-bottom)
+        100dvh - var(--photo-top) -
+          16px - var(--home-reserve) - var(--home-text, 300px) - env(safe-area-inset-bottom)
       ),
       34dvh
     );
+  }
+}
+
+@media (max-width: 760px) and (max-height: 600px) {
+  :root {
+    --home-reserve: 84px;
   }
 }
 
