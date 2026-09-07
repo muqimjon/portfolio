@@ -89,6 +89,7 @@ canvas {
 
 @media (max-width: 760px) {
   .photo {
+    pointer-events: none;
     right: 0;
     left: 0;
     bottom: calc(100dvh - var(--photo-top) - var(--photo-h));
