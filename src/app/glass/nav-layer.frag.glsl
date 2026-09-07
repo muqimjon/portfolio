@@ -39,8 +39,8 @@ void main(){
     off+=normalize(dv+1e-4)*sin(dist*.22-age*53.)*amp*uDpr*inGlass;}}}
   vec3 col=vec3(base(p-off*1.06).r,base(p-off).g,base(p-off*.94).b);
   col*=1.-shade*(1.-uDark);col+=shade*uDark*.04;
-  col=mix(col,mix(vec3(1.),vec3(.6,.63,.7),uDark),tint*mix(1.,.6,uDark));
-  col+=spec*mix(.6,.16,uDark);
-  col=mix(col,vec3(1.),edge*mix(.85,.22,uDark));
+  col=mix(col,mix(vec3(1.),vec3(.6,.63,.7),uDark),tint*mix(.5,.6,uDark));
+  col+=spec*mix(.2,.16,uDark);
+  col=mix(col,vec3(1.),edge*mix(.3,.22,uDark));
   gl_FragColor=vec4(col,1.);
 }
