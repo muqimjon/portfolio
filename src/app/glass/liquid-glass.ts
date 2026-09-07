@@ -28,9 +28,6 @@ const UNIFORMS = [
   'uPhA',
   'uPhOn',
   'uPhS',
-  'uTop',
-  'uTopR',
-  'uTopOn',
 ] as const;
 
 type Locations = Record<(typeof UNIFORMS)[number], WebGLUniformLocation | null>;
@@ -39,7 +36,6 @@ interface Item {
   el: HTMLElement;
   radius: () => number;
   indicator?: () => boolean;
-  top?: () => boolean;
 }
 
 interface Droplet {
@@ -177,8 +173,8 @@ export class LiquidGlass {
     this.ctx = { gl, u };
   }
 
-  registerGlass(el: HTMLElement, radius: () => number, top: () => boolean): () => void {
-    return this.add(this.glasses, { el, radius, top });
+  registerGlass(el: HTMLElement, radius: () => number): () => void {
+    return this.add(this.glasses, { el, radius });
   }
 
   registerBubble(el: HTMLElement, radius: () => number, indicator: () => boolean): () => void {
@@ -355,29 +351,20 @@ export class LiquidGlass {
     const R = this.rectBuf;
     const Rad = this.radBuf;
     let n = 0;
-    let topOn = 0;
     for (const item of this.glasses) {
+      if (n >= 8) break;
       const b = item.el.getBoundingClientRect();
       if (b.width < 2 || b.bottom < 0 || b.top > H) continue;
       const hw = b.width / 2;
       const hh = b.height / 2;
-      const rad = Math.min(item.radius(), hh, hw) * dpr;
-      if (m.x > b.left && m.x < b.right && m.y > b.top && m.y < b.bottom) inside = true;
-      if (item.top?.()) {
-        gl.uniform4f(u.uTop, (b.left + hw) * dpr, (b.top + hh) * dpr, hw * dpr, hh * dpr);
-        gl.uniform1f(u.uTopR, rad);
-        topOn = 1;
-        continue;
-      }
-      if (n >= 8) continue;
       R[n * 4] = (b.left + hw) * dpr;
       R[n * 4 + 1] = (b.top + hh) * dpr;
       R[n * 4 + 2] = hw * dpr;
       R[n * 4 + 3] = hh * dpr;
-      Rad[n] = rad;
+      Rad[n] = Math.min(item.radius(), hh, hw) * dpr;
       n++;
+      if (m.x > b.left && m.x < b.right && m.y > b.top && m.y < b.bottom) inside = true;
     }
-    gl.uniform1f(u.uTopOn, topOn);
 
     const B = this.bubBuf;
     const BRad = this.bubRadBuf;
