@@ -28,7 +28,7 @@ export class State {
 
   constructor() {
     this.apply();
-    history.replaceState(null, '', this.path());
+    history.replaceState(null, '', this.url());
     const onChange = (): void => this.mobile.set(this.media.matches);
     const onPop = (): void => this.apply();
     this.media.addEventListener('change', onChange);
@@ -73,6 +73,13 @@ export class State {
     );
   }
 
+  url(lang = this.lang(), tab = this.tab()): string {
+    const parts: string[] = [];
+    if (lang === 'en') parts.push('en');
+    if (tab !== 'home') parts.push(tab);
+    return '/' + parts.join('/');
+  }
+
   private apply(): void {
     const [first = '', second = ''] = location.pathname.split('/').filter(Boolean);
     const tab = first === 'uz' || first === 'en' ? second : first;
@@ -81,15 +88,8 @@ export class State {
     this.copied.set(false);
   }
 
-  private path(): string {
-    const parts: string[] = [];
-    if (this.lang() === 'en') parts.push('en');
-    if (this.tab() !== 'home') parts.push(this.tab());
-    return '/' + parts.join('/');
-  }
-
   private push(): void {
-    const path = this.path();
-    if (path !== location.pathname) history.pushState(null, '', path);
+    const url = this.url();
+    if (url !== location.pathname) history.pushState(null, '', url);
   }
 }

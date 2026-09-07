@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://muqimjon.uz/</loc>
+    <xhtml:link rel="alternate" hreflang="uz" href="https://muqimjon.uz/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://muqimjon.uz/en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://muqimjon.uz/" />
+  </url>
+  <url>
+    <loc>https://muqimjon.uz/en</loc>
+    <xhtml:link rel="alternate" hreflang="uz" href="https://muqimjon.uz/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://muqimjon.uz/en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://muqimjon.uz/" />
+  </url>
+  <url>
+    <loc>https://muqimjon.uz/work</loc>
+    <xhtml:link rel="alternate" hreflang="uz" href="https://muqimjon.uz/work" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://muqimjon.uz/en/work" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://muqimjon.uz/work" />
+  </url>
+  <url>
+    <loc>https://muqimjon.uz/en/work</loc>
+    <xhtml:link rel="alternate" hreflang="uz" href="https://muqimjon.uz/work" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://muqimjon.uz/en/work" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://muqimjon.uz/work" />
+  </url>
+  <url>
+    <loc>https://muqimjon.uz/contact</loc>
+    <xhtml:link rel="alternate" hreflang="uz" href="https://muqimjon.uz/contact" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://muqimjon.uz/en/contact" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://muqimjon.uz/contact" />
+  </url>
+  <url>
+    <loc>https://muqimjon.uz/en/contact</loc>
+    <xhtml:link rel="alternate" hreflang="uz" href="https://muqimjon.uz/contact" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://muqimjon.uz/en/contact" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://muqimjon.uz/contact" />
+  </url>
+</urlset>
