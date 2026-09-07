@@ -124,6 +124,10 @@ p {
     align-items: start;
     padding: 28px 5vw 0;
     overflow-y: auto;
+    mask-image: linear-gradient(
+      #000 calc(100% - 104px - env(safe-area-inset-bottom)),
+      transparent calc(100% - 72px - env(safe-area-inset-bottom))
+    );
   }
 
   .grid {

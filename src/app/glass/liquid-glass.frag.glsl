@@ -5,6 +5,7 @@ uniform vec4 uB[24];uniform float uBRad[24];uniform int uBN;
 uniform vec3 uD[10];uniform int uDN;
 uniform vec3 uRip[8];uniform int uRN;
 uniform sampler2D uTex;uniform vec4 uPh;uniform float uPhR,uPhA,uPhOn,uPhS;
+uniform vec4 uTop;uniform float uTopR,uTopOn;
 float sdRR(vec2 p,vec2 c,vec2 h,float r){vec2 q=abs(p-c)-h+r;return min(max(q.x,q.y),0.)+length(max(q,0.))-r;}
 float smin(float a,float b,float k){float h=clamp(.5+.5*(b-a)/k,0.,1.);return mix(b,a,h)-k*h*(1.-h);}
 float sdPh(vec2 p){if(uPhOn<.5)return 1e5;vec2 dv=p-uPh.xy;float a=atan(dv.y,dv.x);
@@ -15,6 +16,7 @@ float sceneB(vec2 p){float d=1e5;float k=14.*uDpr;
   for(int i=0;i<24;i++){if(i>=uBN)break;vec4 r=uB[i];d=min(d,sdRR(p,r.xy,r.zw,uBRad[i]));}
   for(int i=0;i<10;i++){if(i>=uDN)break;vec3 q=uD[i];d=smin(d,length(p-q.xy)-q.z,k);}
   return d;}
+float sdTop(vec2 p){if(uTopOn<.5)return 1e5;return sdRR(p,uTop.xy,uTop.zw,uTopR);}
 vec3 hue(float h){return .5+.5*cos(6.2832*(h+vec3(0.,.33,.67)));}
 vec3 bg(vec2 p){
   vec3 base=mix(vec3(.945,.948,.956),vec3(.07,.073,.085),uDark);
@@ -45,8 +47,17 @@ vec3 bg(vec2 p){
   }
   return col;
 }
-void main(){
-  vec2 p=vec2(gl_FragCoord.x,uRes.y-gl_FragCoord.y);
+vec2 ripple(vec2 p,float inGlass){vec2 off=vec2(0.);
+  for(int i=0;i<8;i++){if(i>=uRN)break;vec3 rp=uRip[i];vec2 dv=p-rp.xy;float dist=length(dv)/uDpr;float age=rp.z;
+    float front=age*240.;if(dist<front+30.){float amp=7.*exp(-age*2.4)*exp(-abs(dist-front)/(24.+age*40.));
+    off+=normalize(dv+1e-4)*sin(dist*.22-age*53.)*amp*uDpr*inGlass;}}
+  return off;}
+vec3 finish(vec3 col,float shade,float tint,float spec,float edge){
+  col*=1.-shade*(1.-uDark);col+=shade*uDark*.04;
+  col=mix(col,mix(vec3(1.),vec3(.6,.63,.7),uDark),tint*mix(1.,.6,uDark));
+  col+=spec*mix(.6,.16,uDark);
+  return mix(col,vec3(1.),edge*mix(.85,.22,uDark));}
+vec3 layer(vec2 p){
   float dR=sceneR(p),dB=sceneB(p);
   vec2 off=vec2(0.);float spec=0.,edge=0.,shade=0.,tint=0.;
   vec2 L=normalize(vec2(-.55,-.83));float e=1.5;
@@ -67,13 +78,26 @@ void main(){
       tint+=.12;edge=max(edge,smoothstep(1.4*uDpr,0.,abs(dB+.8*uDpr)));}
   }
   float inGlass=max(smoothstep(2.*uDpr,-10.*uDpr,dR),smoothstep(1.*uDpr,-6.*uDpr,dB));
-  if(inGlass>0.){for(int i=0;i<8;i++){if(i>=uRN)break;vec3 rp=uRip[i];vec2 dv=p-rp.xy;float dist=length(dv)/uDpr;float age=rp.z;
-    float front=age*240.;if(dist<front+30.){float amp=7.*exp(-age*2.4)*exp(-abs(dist-front)/(24.+age*40.));
-    off+=normalize(dv+1e-4)*sin(dist*.22-age*53.)*amp*uDpr*inGlass;}}}
+  if(inGlass>0.)off+=ripple(p,inGlass);
   vec3 col=vec3(bg(p-off*1.06).r,bg(p-off).g,bg(p-off*.94).b);
-  col*=1.-shade*(1.-uDark);col+=shade*uDark*.04;
-  col=mix(col,mix(vec3(1.),vec3(.6,.63,.7),uDark),tint*mix(1.,.6,uDark));
-  col+=spec*mix(.6,.16,uDark);
-  col=mix(col,vec3(1.),edge*mix(.85,.22,uDark));
+  return finish(col,shade,tint,spec,edge);
+}
+void main(){
+  vec2 p=vec2(gl_FragCoord.x,uRes.y-gl_FragCoord.y);
+  vec3 col=layer(p);
+  float dT=sdTop(p);
+  if(dT<30.*uDpr){
+    vec2 L=normalize(vec2(-.55,-.83));float e=1.5;
+    vec2 n=normalize(vec2(sdTop(p+vec2(e,0.))-dT,sdTop(p+vec2(0.,e))-dT)+1e-5);
+    vec2 off=vec2(0.);float spec=0.,edge=0.,shade=0.,tint=0.;
+    if(dT>0.){float sh=1.-dT/(30.*uDpr);shade+=max(sh,0.)*max(sh,0.)*.07;}
+    else{float band=clamp(-dT/(34.*uDpr),0.,1.);float lens=pow(1.-band,2.4);
+      off+=n*lens*uStr*36.*uDpr;spec+=(pow(max(dot(n,L),0.),3.)+.5*pow(max(dot(n,-L),0.),4.))*lens;
+      tint+=.13;edge=smoothstep(1.7*uDpr,0.,abs(dT+.9*uDpr));}
+    float inTop=smoothstep(2.*uDpr,-10.*uDpr,dT)*(1.-smoothstep(1.*uDpr,-6.*uDpr,sceneB(p)));
+    if(inTop>0.)off+=ripple(p,inTop);
+    if(dot(off,off)>0.)col=vec3(layer(p-off*1.06).r,layer(p-off).g,layer(p-off*.94).b);
+    col=finish(col,shade,tint,spec,edge);
+  }
   gl_FragColor=vec4(col,1.);
 }
