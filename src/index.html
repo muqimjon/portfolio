@@ -1,11 +1,38 @@
 <!doctype html>
-<html lang="en">
+<html lang="uz">
   <head>
     <meta charset="utf-8" />
-    <title>Portfolio</title>
+    <title>Muqimjon Mamadaliyev — .NET Backend Developer</title>
     <base href="/" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta
+      name="description"
+      content="Real mijozlar uchun ishlab chiqarishga chiqadigan tizimlar quraman — Clean Architecture, CQRS, PostgreSQL, Docker."
+    />
+    <meta name="theme-color" content="#121316" />
+    <script>
+      try {
+        const dark = localStorage.getItem('dark') !== 'false';
+        document.documentElement.classList.toggle('light', !dark);
+        document.documentElement.lang = localStorage.getItem('lang') === 'en' ? 'en' : 'uz';
+        document.querySelector('meta[name="theme-color"]').content = dark ? '#121316' : '#f1f2f4';
+      } catch {}
+    </script>
+    <link rel="canonical" href="https://muqimjon.uz/" />
+    <meta property="og:title" content="Muqimjon Mamadaliyev — .NET Backend Developer" />
+    <meta
+      property="og:description"
+      content="Real mijozlar uchun ishlab chiqarishga chiqadigan tizimlar quraman — Clean Architecture, CQRS, PostgreSQL, Docker."
+    />
+    <meta property="og:url" content="https://muqimjon.uz/" />
+    <meta property="og:type" content="website" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Caveat:wght@400;600&family=JetBrains+Mono:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <app-root></app-root>

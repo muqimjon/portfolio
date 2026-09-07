@@ -1,0 +1,14 @@
+<h2>{{ state.t().contactTitle }}</h2>
+<p>{{ state.t().contactLine }}</p>
+
+<div class="socials">
+  @for (s of socials; track s.href) {
+    <a bubble [radius]="34" [href]="s.href" target="_blank" [title]="s.title">{{ s.glyph }}</a>
+  }
+</div>
+
+<button class="email" title="copy" (click)="state.copyEmail()">{{ emailLine() }}</button>
+
+<a class="resume" bubble [radius]="22" [href]="resume" target="_blank"
+  >{{ state.t().ctaResume }} ↗</a
+>
