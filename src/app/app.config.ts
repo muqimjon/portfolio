@@ -1,5 +1,16 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import {
+  ApplicationConfig,
+  inject,
+  provideAppInitializer,
+  provideBrowserGlobalErrorListeners,
+} from '@angular/core';
+import { Seo } from './seo';
 
 export const appConfig: ApplicationConfig = {
-  providers: [provideBrowserGlobalErrorListeners()],
+  providers: [
+    provideBrowserGlobalErrorListeners(),
+    provideAppInitializer(() => {
+      inject(Seo);
+    }),
+  ],
 };

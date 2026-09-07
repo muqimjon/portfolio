@@ -3,7 +3,13 @@ export type Lang = 'uz' | 'en';
 export type StatusKey = 'prod' | 'beta';
 export type ProjectKey = 'cartex' | 'volt' | 'optivis' | 'kotib';
 
+export interface Seo {
+  title: string;
+  description: string;
+}
+
 export interface Copy {
+  seo: Record<Tab, Seo>;
   nav: [string, string, string];
   hi: string;
   role1: string;
@@ -43,6 +49,23 @@ export const RESUME = 'https://flowcv.com/resume/w7m1qvie37';
 
 export const T: Record<Lang, Copy> = {
   uz: {
+    seo: {
+      home: {
+        title: "Muqimjon Mamadaliyev | .NET Backend Developer, Farg'ona",
+        description:
+          "Muqimjon Mamadaliyev — Farg'onalik .NET backend dasturchi: Clean Architecture, CQRS, PostgreSQL, Docker, Angular. Cartex, VoltStream, OptiVis va Kotib loyihalari.",
+      },
+      work: {
+        title: 'Loyihalar — Muqimjon Mamadaliyev | .NET, Angular, Docker',
+        description:
+          "Cartex savdo ekotizimi, VoltStream ombor tizimi, OptiVis call-center analitikasi va Kotib Telegram boti — Muqimjon Mamadaliyev'ning .NET va Angular loyihalari.",
+      },
+      contact: {
+        title: 'Aloqa — Muqimjon Mamadaliyev | .NET dasturchi bilan bog‘lanish',
+        description:
+          "Muqimjon Mamadaliyev bilan bog'laning: GitHub, LinkedIn, Telegram va e-mail. Backend masalasi yoki kuchli jamoa taklifi bo'lsa — yozing.",
+      },
+    },
     nav: ['Bosh', 'Loyihalar', 'Aloqa'],
     hi: 'salom, men Muqimjon',
     role1: '.NET Backend',
@@ -69,6 +92,23 @@ export const T: Record<Lang, Copy> = {
     },
   },
   en: {
+    seo: {
+      home: {
+        title: 'Muqimjon Mamadaliyev | .NET Backend Developer, Fergana, Uzbekistan',
+        description:
+          '.NET backend developer from Fergana, Uzbekistan: Clean Architecture, CQRS, PostgreSQL, Docker, Angular. Projects: Cartex, VoltStream, OptiVis and Kotib.',
+      },
+      work: {
+        title: 'Projects — Muqimjon Mamadaliyev | .NET, Angular, Docker',
+        description:
+          'Cartex retail ecosystem, VoltStream inventory system, OptiVis call-center analytics and the Kotib Telegram bot — .NET and Angular projects by Muqimjon Mamadaliyev.',
+      },
+      contact: {
+        title: 'Contact — Muqimjon Mamadaliyev | Hire a .NET backend developer',
+        description:
+          'Get in touch with Muqimjon Mamadaliyev: GitHub, LinkedIn, Telegram and e-mail. Interesting backend problem or a strong team? Write me.',
+      },
+    },
     nav: ['Home', 'Work', 'Contact'],
     hi: 'hi, I’m Muqimjon',
     role1: '.NET Backend',
