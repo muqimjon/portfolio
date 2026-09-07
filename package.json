@@ -5,7 +5,8 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "deploy": "ng build && wrangler deploy"
+    "deploy": "ng build && wrangler deploy",
+    "preview": "ng build && wrangler deploy -c wrangler.preview.jsonc"
   },
   "private": true,
   "packageManager": "npm@11.18.0",

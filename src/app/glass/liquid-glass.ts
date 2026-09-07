@@ -1,10 +1,11 @@
 import { DestroyRef, Injectable, inject } from '@angular/core';
 import { State } from '../state';
 import frag from './liquid-glass.frag.glsl';
+import navFrag from './nav-layer.frag.glsl';
 
 const VERT = 'attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
 
-const UNIFORMS = [
+const BASE_UNIFORMS = [
   'uRes',
   'uTime',
   'uDark',
@@ -28,14 +29,49 @@ const UNIFORMS = [
   'uPhA',
   'uPhOn',
   'uPhS',
-] as const;
+  'uTop',
+  'uTopR',
+  'uTopOn',
+];
 
-type Locations = Record<(typeof UNIFORMS)[number], WebGLUniformLocation | null>;
+const TOP_UNIFORMS = [
+  'uRes',
+  'uDark',
+  'uStr',
+  'uDpr',
+  'uBase',
+  'uTop',
+  'uTopR',
+  'uTopOn',
+  'uB',
+  'uBRad',
+  'uBN',
+  'uD',
+  'uDN',
+  'uRip',
+  'uRN',
+];
+
+type Locations = Record<string, WebGLUniformLocation | null>;
+
+interface Pass {
+  program: WebGLProgram;
+  u: Locations;
+}
+
+interface Context {
+  gl: WebGLRenderingContext;
+  base: Pass;
+  top: Pass;
+  fb: WebGLFramebuffer;
+  tex: WebGLTexture;
+}
 
 interface Item {
   el: HTMLElement;
   radius: () => number;
   indicator?: () => boolean;
+  top?: () => boolean;
 }
 
 interface Droplet {
@@ -71,7 +107,7 @@ export class LiquidGlass {
   private readonly coarse = matchMedia('(pointer: coarse)');
 
   private canvas: HTMLCanvasElement | null = null;
-  private ctx: { gl: WebGLRenderingContext; u: Locations } | null = null;
+  private ctx: Context | null = null;
   private raf = 0;
   private t0 = 0;
 
@@ -84,6 +120,8 @@ export class LiquidGlass {
   private readonly radBuf = new Float32Array(8);
   private readonly bubBuf = new Float32Array(96);
   private readonly bubRadBuf = new Float32Array(24);
+  private readonly topBubBuf = new Float32Array(32);
+  private readonly topBubRadBuf = new Float32Array(8);
   private readonly dropBuf = new Float32Array(30);
   private readonly ripBuf = new Float32Array(24);
 
@@ -131,54 +169,60 @@ export class LiquidGlass {
     const gl = canvas.getContext('webgl', { antialias: false, alpha: false });
     if (!gl) return;
 
-    const program = gl.createProgram();
-    this.compile(gl, program, gl.VERTEX_SHADER, VERT);
-    this.compile(gl, program, gl.FRAGMENT_SHADER, frag);
-    gl.linkProgram(program);
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      console.error(gl.getProgramInfoLog(program));
-      return;
-    }
-    gl.useProgram(program);
+    const base = this.link(gl, frag, BASE_UNIFORMS);
+    const top = this.link(gl, navFrag, TOP_UNIFORMS);
+    if (!base || !top) return;
 
     gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-    const a = gl.getAttribLocation(program, 'a');
-    gl.enableVertexAttribArray(a);
-    gl.vertexAttribPointer(a, 2, gl.FLOAT, false, 0, 0);
-
-    const u = {} as Locations;
-    for (const name of UNIFORMS) u[name] = gl.getUniformLocation(program, name);
+    gl.enableVertexAttribArray(0);
+    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
 
     this.phOn = 0;
-    const tex = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.activeTexture(gl.TEXTURE0);
+    const portrait = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, portrait);
     const grey = new Uint8Array([200, 200, 200]);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 1, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, grey);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.uniform1i(u.uTex, 0);
+    this.clampLinear(gl);
+    gl.useProgram(base.program);
+    gl.uniform1i(base.u['uTex'], 0);
 
     const img = new Image();
     img.onload = () => {
-      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, portrait);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, img);
       this.phA = img.width / img.height;
       this.phOn = 1;
     };
     img.src = '/assets/portrait.jpg';
 
-    this.ctx = { gl, u };
+    gl.activeTexture(gl.TEXTURE1);
+    const tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    this.clampLinear(gl);
+    gl.useProgram(top.program);
+    gl.uniform1i(top.u['uBase'], 1);
+    const fb = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+    this.ctx = { gl, base, top, fb, tex };
   }
 
-  registerGlass(el: HTMLElement, radius: () => number): () => void {
-    return this.add(this.glasses, { el, radius });
+  registerGlass(el: HTMLElement, radius: () => number, top: () => boolean): () => void {
+    return this.add(this.glasses, { el, radius, top });
   }
 
-  registerBubble(el: HTMLElement, radius: () => number, indicator: () => boolean): () => void {
-    return this.add(this.bubbles, { el, radius, indicator });
+  registerBubble(
+    el: HTMLElement,
+    radius: () => number,
+    indicator: () => boolean,
+    top: () => boolean,
+  ): () => void {
+    return this.add(this.bubbles, { el, radius, indicator, top });
   }
 
   registerFrame(task: () => void): () => void {
@@ -208,6 +252,28 @@ export class LiquidGlass {
       if (i >= 0) list.splice(i, 1);
       this.swell.delete(item.el);
     };
+  }
+
+  private clampLinear(gl: WebGLRenderingContext): void {
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  }
+
+  private link(gl: WebGLRenderingContext, src: string, names: string[]): Pass | null {
+    const program = gl.createProgram();
+    this.compile(gl, program, gl.VERTEX_SHADER, VERT);
+    this.compile(gl, program, gl.FRAGMENT_SHADER, src);
+    gl.bindAttribLocation(program, 0, 'a');
+    gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      console.error(gl.getProgramInfoLog(program));
+      return null;
+    }
+    const u: Locations = {};
+    for (const name of names) u[name] = gl.getUniformLocation(program, name);
+    return { program, u };
   }
 
   private compile(
@@ -277,7 +343,7 @@ export class LiquidGlass {
     const ctx = this.ctx;
     const cv = this.canvas;
     if (!ctx || !cv) return;
-    const { gl, u } = ctx;
+    const { gl, base: bp, top: tp } = ctx;
 
     const dpr = Math.min(window.devicePixelRatio || 1, 1.25);
     const H = window.innerHeight;
@@ -287,6 +353,9 @@ export class LiquidGlass {
       cv.width = w;
       cv.height = h;
       gl.viewport(0, 0, w, h);
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, ctx.tex);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
     }
 
     const m = this.m;
@@ -337,41 +406,58 @@ export class LiquidGlass {
     for (const t of this.trail) push(t.x, t.y, 9 * t.l);
 
     let inside = false;
+    gl.useProgram(bp.program);
     const ph = this.photo;
     if (ph) {
       const b = ph.el.getBoundingClientRect();
       const hw = b.width / 2;
       const hh = b.height / 2;
-      gl.uniform4f(u.uPh, (b.left + hw) * dpr, (b.top + hh) * dpr, hw * dpr, hh * dpr);
-      gl.uniform1f(u.uPhR, Math.min(ph.radius(), hw) * dpr);
-      gl.uniform1f(u.uPhS, Math.max(0.35, Math.min(1, b.width / 300)));
+      gl.uniform4f(bp.u['uPh'], (b.left + hw) * dpr, (b.top + hh) * dpr, hw * dpr, hh * dpr);
+      gl.uniform1f(bp.u['uPhR'], Math.min(ph.radius(), hw) * dpr);
+      gl.uniform1f(bp.u['uPhS'], Math.max(0.35, Math.min(1, b.width / 300)));
       if (m.x > b.left && m.x < b.right && m.y > b.top && m.y < b.bottom) inside = true;
     }
 
     const R = this.rectBuf;
     const Rad = this.radBuf;
     let n = 0;
+    let topOn = 0;
+    const top = [0, 0, 0, 0, 0];
     for (const item of this.glasses) {
-      if (n >= 8) break;
       const b = item.el.getBoundingClientRect();
       if (b.width < 2 || b.bottom < 0 || b.top > H) continue;
       const hw = b.width / 2;
       const hh = b.height / 2;
+      const rad = Math.min(item.radius(), hh, hw) * dpr;
+      if (m.x > b.left && m.x < b.right && m.y > b.top && m.y < b.bottom) inside = true;
+      if (item.top?.()) {
+        top[0] = (b.left + hw) * dpr;
+        top[1] = (b.top + hh) * dpr;
+        top[2] = hw * dpr;
+        top[3] = hh * dpr;
+        top[4] = rad;
+        topOn = 1;
+        continue;
+      }
+      if (n >= 8) continue;
       R[n * 4] = (b.left + hw) * dpr;
       R[n * 4 + 1] = (b.top + hh) * dpr;
       R[n * 4 + 2] = hw * dpr;
       R[n * 4 + 3] = hh * dpr;
-      Rad[n] = Math.min(item.radius(), hh, hw) * dpr;
+      Rad[n] = rad;
       n++;
-      if (m.x > b.left && m.x < b.right && m.y > b.top && m.y < b.bottom) inside = true;
     }
 
     const B = this.bubBuf;
     const BRad = this.bubRadBuf;
+    const TB = this.topBubBuf;
+    const TBRad = this.topBubRadBuf;
     let bn = 0;
+    let tbn = 0;
     let absorbed = 0;
     for (const item of this.bubbles) {
-      if (bn >= 24) break;
+      const isTop = item.top?.() ?? false;
+      if (isTop ? tbn >= 8 : bn >= 24) continue;
       const b = item.el.getBoundingClientRect();
       if (b.width < 2 || b.bottom < 0 || b.top > H) continue;
       const hw = b.width / 2;
@@ -401,12 +487,13 @@ export class LiquidGlass {
       if (!item.indicator?.()) {
         item.el.style.transform = s.s > 0.003 ? `scale(${(1 + s.s * 0.02).toFixed(4)})` : '';
       }
-      B[bn * 4] = cx * dpr;
-      B[bn * 4 + 1] = cy * dpr;
-      B[bn * 4 + 2] = hw * dpr + ex;
-      B[bn * 4 + 3] = hh * dpr + ex;
-      BRad[bn] = rad * dpr + ex;
-      bn++;
+      const buf = isTop ? TB : B;
+      const i = isTop ? tbn++ : bn++;
+      buf[i * 4] = cx * dpr;
+      buf[i * 4 + 1] = cy * dpr;
+      buf[i * 4 + 2] = hw * dpr + ex;
+      buf[i * 4 + 3] = hh * dpr + ex;
+      (isTop ? TBRad : BRad)[i] = rad * dpr + ex;
     }
 
     this.shrink += (absorbed * 0.3 - this.shrink) * 0.12;
@@ -425,25 +512,47 @@ export class LiquidGlass {
       RP[i * 3 + 2] = (now - r.t0) / 1000;
     });
 
-    gl.uniform2f(u.uRes, cv.width, cv.height);
-    gl.uniform1f(u.uTime, (now - this.t0) / 1000);
-    gl.uniform1f(u.uDark, this.darkT);
-    gl.uniform1f(u.uStr, 1);
-    gl.uniform1f(u.uGrid, 1);
-    gl.uniform1f(u.uHue, 0.62);
-    gl.uniform1f(u.uDpr, dpr);
-    gl.uniform4fv(u.uR, R);
-    gl.uniform1fv(u.uRad, Rad);
-    gl.uniform1i(u.uN, n);
-    gl.uniform4fv(u.uB, B);
-    gl.uniform1fv(u.uBRad, BRad);
-    gl.uniform1i(u.uBN, bn);
-    gl.uniform3fv(u.uD, D);
-    gl.uniform1i(u.uDN, dn);
-    gl.uniform3fv(u.uRip, RP);
-    gl.uniform1i(u.uRN, this.rips.length);
-    gl.uniform1f(u.uPhA, this.phA);
-    gl.uniform1f(u.uPhOn, this.phOn);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, ctx.fb);
+    gl.uniform2f(bp.u['uRes'], cv.width, cv.height);
+    gl.uniform1f(bp.u['uTime'], (now - this.t0) / 1000);
+    gl.uniform1f(bp.u['uDark'], this.darkT);
+    gl.uniform1f(bp.u['uStr'], 1);
+    gl.uniform1f(bp.u['uGrid'], 1);
+    gl.uniform1f(bp.u['uHue'], 0.62);
+    gl.uniform1f(bp.u['uDpr'], dpr);
+    gl.uniform4fv(bp.u['uR'], R);
+    gl.uniform1fv(bp.u['uRad'], Rad);
+    gl.uniform1i(bp.u['uN'], n);
+    gl.uniform4fv(bp.u['uB'], B);
+    gl.uniform1fv(bp.u['uBRad'], BRad);
+    gl.uniform1i(bp.u['uBN'], bn);
+    gl.uniform3fv(bp.u['uD'], D);
+    gl.uniform1i(bp.u['uDN'], dn);
+    gl.uniform3fv(bp.u['uRip'], RP);
+    gl.uniform1i(bp.u['uRN'], this.rips.length);
+    gl.uniform1f(bp.u['uPhA'], this.phA);
+    gl.uniform1f(bp.u['uPhOn'], this.phOn);
+    gl.uniform4f(bp.u['uTop'], top[0], top[1], top[2], top[3]);
+    gl.uniform1f(bp.u['uTopR'], top[4]);
+    gl.uniform1f(bp.u['uTopOn'], topOn);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.useProgram(tp.program);
+    gl.uniform2f(tp.u['uRes'], cv.width, cv.height);
+    gl.uniform1f(tp.u['uDark'], this.darkT);
+    gl.uniform1f(tp.u['uStr'], 1);
+    gl.uniform1f(tp.u['uDpr'], dpr);
+    gl.uniform4f(tp.u['uTop'], top[0], top[1], top[2], top[3]);
+    gl.uniform1f(tp.u['uTopR'], top[4]);
+    gl.uniform1f(tp.u['uTopOn'], topOn);
+    gl.uniform4fv(tp.u['uB'], TB);
+    gl.uniform1fv(tp.u['uBRad'], TBRad);
+    gl.uniform1i(tp.u['uBN'], tbn);
+    gl.uniform3fv(tp.u['uD'], D);
+    gl.uniform1i(tp.u['uDN'], dn);
+    gl.uniform3fv(tp.u['uRip'], RP);
+    gl.uniform1i(tp.u['uRN'], this.rips.length);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   };
 }

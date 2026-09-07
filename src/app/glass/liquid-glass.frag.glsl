@@ -5,6 +5,7 @@ uniform vec4 uB[24];uniform float uBRad[24];uniform int uBN;
 uniform vec3 uD[10];uniform int uDN;
 uniform vec3 uRip[8];uniform int uRN;
 uniform sampler2D uTex;uniform vec4 uPh;uniform float uPhR,uPhA,uPhOn,uPhS;
+uniform vec4 uTop;uniform float uTopR,uTopOn;
 float sdRR(vec2 p,vec2 c,vec2 h,float r){vec2 q=abs(p-c)-h+r;return min(max(q.x,q.y),0.)+length(max(q,0.))-r;}
 float smin(float a,float b,float k){float h=clamp(.5+.5*(b-a)/k,0.,1.);return mix(b,a,h)-k*h*(1.-h);}
 float sdPh(vec2 p){if(uPhOn<.5)return 1e5;vec2 dv=p-uPh.xy;float a=atan(dv.y,dv.x);
@@ -13,7 +14,7 @@ float sdPh(vec2 p){if(uPhOn<.5)return 1e5;vec2 dv=p-uPh.xy;float a=atan(dv.y,dv.
 float sceneR(vec2 p){float d=sdPh(p);for(int i=0;i<8;i++){if(i>=uN)break;vec4 r=uR[i];d=min(d,sdRR(p,r.xy,r.zw,uRad[i]));}return d;}
 float sceneB(vec2 p){float d=1e5;float k=14.*uDpr;
   for(int i=0;i<24;i++){if(i>=uBN)break;vec4 r=uB[i];d=min(d,sdRR(p,r.xy,r.zw,uBRad[i]));}
-  for(int i=0;i<10;i++){if(i>=uDN)break;vec3 q=uD[i];d=smin(d,length(p-q.xy)-q.z,k);}
+  if(uTopOn<.5||sdRR(p,uTop.xy,uTop.zw,uTopR)>=30.*uDpr){for(int i=0;i<10;i++){if(i>=uDN)break;vec3 q=uD[i];d=smin(d,length(p-q.xy)-q.z,k);}}
   return d;}
 vec3 hue(float h){return .5+.5*cos(6.2832*(h+vec3(0.,.33,.67)));}
 vec3 bg(vec2 p){
