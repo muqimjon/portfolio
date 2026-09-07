@@ -5,11 +5,12 @@ import { LiquidGlass } from './liquid-glass';
 export class Bubble {
   readonly radius = input(20);
   readonly indicator = input(false);
+  readonly top = input(false);
 
   constructor() {
     const el = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
     inject(DestroyRef).onDestroy(
-      inject(LiquidGlass).registerBubble(el, this.radius, this.indicator),
+      inject(LiquidGlass).registerBubble(el, this.radius, this.indicator, this.top),
     );
   }
 }
