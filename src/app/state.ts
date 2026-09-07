@@ -20,21 +20,26 @@ export class State {
   private readonly media = matchMedia('(max-width: 760px)');
 
   readonly tab = signal<Tab>('home');
-  readonly lang = signal<Lang>(read('lang') === 'en' ? 'en' : 'uz');
+  readonly lang = signal<Lang>('uz');
   readonly dark = signal(read('dark') !== 'false');
   readonly copied = signal(false);
   readonly mobile = signal(this.media.matches);
   readonly t = computed(() => T[this.lang()]);
 
   constructor() {
+    this.apply();
+    history.replaceState(null, '', this.path());
     const onChange = (): void => this.mobile.set(this.media.matches);
+    const onPop = (): void => this.apply();
     this.media.addEventListener('change', onChange);
-    inject(DestroyRef).onDestroy(() => this.media.removeEventListener('change', onChange));
+    window.addEventListener('popstate', onPop);
+    inject(DestroyRef).onDestroy(() => {
+      this.media.removeEventListener('change', onChange);
+      window.removeEventListener('popstate', onPop);
+    });
 
     effect(() => {
-      const lang = this.lang();
-      document.documentElement.lang = lang;
-      write('lang', lang);
+      document.documentElement.lang = this.lang();
     });
     effect(() => {
       const dark = this.dark();
@@ -49,10 +54,12 @@ export class State {
   go(tab: Tab): void {
     this.tab.set(tab);
     this.copied.set(false);
+    this.push();
   }
 
   toggleLang(): void {
     this.lang.update((l) => (l === 'uz' ? 'en' : 'uz'));
+    this.push();
   }
 
   toggleDark(): void {
@@ -64,5 +71,25 @@ export class State {
       () => this.copied.set(true),
       () => {},
     );
+  }
+
+  private apply(): void {
+    const [first = '', second = ''] = location.pathname.split('/').filter(Boolean);
+    const tab = first === 'uz' || first === 'en' ? second : first;
+    this.lang.set(first === 'en' ? 'en' : 'uz');
+    this.tab.set(tab === 'work' || tab === 'contact' ? tab : 'home');
+    this.copied.set(false);
+  }
+
+  private path(): string {
+    const parts: string[] = [];
+    if (this.lang() === 'en') parts.push('en');
+    if (this.tab() !== 'home') parts.push(this.tab());
+    return '/' + parts.join('/');
+  }
+
+  private push(): void {
+    const path = this.path();
+    if (path !== location.pathname) history.pushState(null, '', path);
   }
 }

@@ -2,7 +2,8 @@
 
 Muqimjon Mamadaliyev — .NET backend developer'ning shaxsiy portfolio sayti.
 Bosh sahifa, loyihalar va aloqa bo'limlari bitta ekranda almashadi; UZ/EN til va
-qorong'i/yorug' rejim almashtirgichlari bor.
+qorong'i/yorug' rejim almashtirgichlari bor. Bo'lim va til manzilda yashaydi:
+`/`, `/work`, `/contact` (o'zbekcha) va `/en`, `/en/work`, `/en/contact`.
 
 Butun sahifa jonli WebGL "liquid glass" shader ustida ishlaydi: panellar, tugmalar
 va kursorning o'zi ham suv/shisha jismlari sifatida chiziladi.
