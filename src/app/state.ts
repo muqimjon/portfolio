@@ -46,7 +46,7 @@ export class State {
       document.documentElement.classList.toggle('light', !dark);
       document
         .querySelector('meta[name="theme-color"]')
-        ?.setAttribute('content', dark ? '#121316' : '#f1f2f4');
+        ?.setAttribute('content', dark ? '#121316' : '#e3e6eb');
       write('dark', String(dark));
     });
   }

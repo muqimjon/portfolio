@@ -67,11 +67,11 @@ export const T: Record<Lang, Copy> = {
       },
     },
     nav: ['Bosh', 'Loyihalar', 'Aloqa'],
-    hi: 'salom, men Muqimjon',
+    hi: 'salom, bu Muqimjon',
     role1: '.NET Backend',
-    role2: 'Developer',
+    role2: 'dasturchi',
     intro:
-      "Real mijozlar uchun ishlab chiqarishga chiqadigan tizimlar quraman — Clean Architecture, CQRS, PostgreSQL, Docker. Kerak bo'lsa Angular yoki WPF/Avalonia bilan mahsulotni to'liq yopaman.",
+      "Real mijozlar har kuni ishlatadigan tizimlar: Clean Architecture, CQRS, PostgreSQL, Docker. Kerak bo'lsa mahsulot veb, desktop va mobil interfeyslari bilan boshdan oxirigacha olib chiqiladi.",
     ctaWork: "Loyihalarni ko'rish",
     ctaResume: 'Resume',
     contactTitle: 'Gaplashamizmi?',
@@ -83,12 +83,12 @@ export const T: Record<Lang, Copy> = {
     st: { prod: 'Production', beta: 'Beta' },
     pd: {
       cartex:
-        "Savdo ekotizimi: Web API, Angular veb, Avalonia desktop va MAUI mobil klientlar. Eng yirik jamoaviy loyihamiz — Hetzner'da Docker bilan.",
-      volt: "Kabel zavodi uchun ombor va savdo boshqaruvi. WPF desktop + Angular veb, on-site Docker, shifrlangan kunlik backup'lar.",
+        'Savdo biznesi uchun ekotizim: kompyuter va telefon ilovalari, veb orqali boshqaruv va hisobot. Eng yirik jamoaviy loyihamiz.',
+      volt: 'Kabel zavodi uchun ombor va savdo boshqaruvi. Rahbariyatda kompyuter ilovasi, sexda veb. Zavod serverida, kunlik zaxira bilan.',
       optivis:
-        'Hamroh mikromoliya tashkiloti uchun call-center analitikasi. Issabel/Asterisk telefoniya bilan jonli integratsiya.',
+        "Hamroh mikromoliya tashkiloti uchun call-center analitikasi. Qo'ng'iroqlar jonli kuzatiladi, yuk va samaradorlik hisobotda.",
       kotib:
-        "Shaxsiy loyiha. Angular frontend, Cloudflare'ga GitHub Actions orqali avtomatik deploy, Telegram bot.",
+        "Telegram Business uchun AI-kotib: egasi band bo'lganda mijozga javob beradi, navbatga yozadi, zararli APK'larni to'sadi.",
     },
   },
   en: {
@@ -114,7 +114,7 @@ export const T: Record<Lang, Copy> = {
     role1: '.NET Backend',
     role2: 'Developer',
     intro:
-      'I build production systems for real clients — Clean Architecture, CQRS, PostgreSQL, Docker. When needed I close the loop with Angular or WPF/Avalonia.',
+      'Systems real clients use every day: Clean Architecture, CQRS, PostgreSQL, Docker. When it is needed, the product ships end to end, with its web, desktop and mobile interfaces.',
     ctaWork: 'See the work',
     ctaResume: 'Resume',
     contactTitle: 'Let’s talk.',
@@ -126,12 +126,12 @@ export const T: Record<Lang, Copy> = {
     st: { prod: 'Production', beta: 'Beta' },
     pd: {
       cartex:
-        'Retail ecosystem: Web API, Angular web, Avalonia desktop and MAUI mobile clients. Our largest team project — Docker on Hetzner.',
-      volt: 'Inventory & sales system for a cable factory. WPF desktop + Angular web, on-site Docker, encrypted daily backups.',
+        'An ecosystem for a retail business: apps on computer and phone, management and reporting on the web. Our largest team project.',
+      volt: "A desktop app for management, the web on the shop floor: inventory and sales for a cable factory, on the factory's own server.",
       optivis:
-        'Call-center analytics for Hamroh Microfinance. Live integration with Issabel/Asterisk telephony.',
+        'Call-centre analytics for Hamroh Microfinance. Calls are followed live, with load and performance in the reports.',
       kotib:
-        'Solo project. Angular frontend, auto-deployed to Cloudflare via GitHub Actions, Telegram bot.',
+        'An AI assistant for Telegram Business: it answers customers while the owner is busy, books the queue and blocks malicious APKs.',
     },
   },
 };
@@ -141,7 +141,7 @@ export const PROJECTS: Project[] = [
     key: 'cartex',
     name: 'Cartex',
     st: 'prod',
-    stack: ['.NET 10', 'Angular 22', 'Avalonia', 'MAUI', 'Docker', 'Hetzner'],
+    stack: ['.NET 10', 'Angular 22', 'Avalonia', 'MAUI', 'Docker'],
     links: [
       { label: 'Live', href: 'https://cartex.muqimjon.uz' },
       { label: 'GitHub', href: 'https://github.com/ovozadasturlar/cartex' },
