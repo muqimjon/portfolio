@@ -79,7 +79,8 @@ p {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    padding: 28px 6vw calc(130px + env(safe-area-inset-bottom));
+    padding: calc(var(--photo-top) + var(--photo-h) + 16px) 6vw
+      calc(130px + env(safe-area-inset-bottom));
     overflow-y: auto;
   }
 

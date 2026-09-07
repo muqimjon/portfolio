@@ -19,6 +19,21 @@ body {
   overflow: hidden;
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+@media (max-width: 760px) {
+  :root {
+    --photo-top: max(20px, calc(12dvh - 48px));
+    --photo-h: clamp(
+      120px,
+      calc(
+        100dvh - var(--photo-top) - 146px - var(--home-text, 300px) - env(safe-area-inset-bottom)
+      ),
+      34dvh
+    );
+  }
 }
 
 @media (pointer: fine) {
