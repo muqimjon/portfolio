@@ -18,7 +18,7 @@ float sceneB(vec2 p){float d=1e5;float k=14.*uDpr;
   return d;}
 vec3 hue(float h){return .5+.5*cos(6.2832*(h+vec3(0.,.33,.67)));}
 vec3 bg(vec2 p){
-  vec3 base=mix(vec3(.945,.948,.956),vec3(.07,.073,.085),uDark);
+  vec3 base=mix(vec3(.89,.902,.922),vec3(.07,.073,.085),uDark);
   vec2 q=p/uRes.y;float t=uTime*.11;float ar=uRes.x/uRes.y;
   vec2 c1=vec2(ar*.22+.12*sin(t),.38+.1*cos(t*1.3));
   vec2 c2=vec2(ar*.78+.1*cos(t*.8),.62+.12*sin(t*1.1));
@@ -26,9 +26,9 @@ vec3 bg(vec2 p){
   float b1=exp(-length(q-c1)*3.),b2=exp(-length(q-c2)*2.8),b3=exp(-length(q-c3)*3.4);
   vec3 t1=hue(uHue),t2=hue(uHue+.42),t3=hue(uHue+.18);
   vec3 col=base;
-  col=mix(col,mix(mix(vec3(1.),t1,.5),t1*.55,uDark),b1*.75);
-  col=mix(col,mix(mix(vec3(1.),t2,.5),t2*.5,uDark),b2*.7);
-  col=mix(col,mix(mix(vec3(1.),t3,.5),t3*.5,uDark),b3*.6);
+  col=mix(col,mix(mix(vec3(.86,.88,.91),t1,.3),t1*.55,uDark),b1*.75);
+  col=mix(col,mix(mix(vec3(.86,.88,.91),t2,.3),t2*.5,uDark),b2*.7);
+  col=mix(col,mix(mix(vec3(.86,.88,.91),t3,.3),t3*.5,uDark),b3*.6);
   vec2 m=mod(p,64.*uDpr);float line=clamp(step(m.x,1.*uDpr)+step(m.y,1.*uDpr),0.,1.);
   col=mix(col,mix(vec3(0.),vec3(1.),uDark),line*uGrid*mix(.05,.07,uDark));
   if(uPhOn>.5){
@@ -73,7 +73,7 @@ void main(){
     off+=normalize(dv+1e-4)*sin(dist*.22-age*53.)*amp*uDpr*inGlass;}}}
   vec3 col=vec3(bg(p-off*1.06).r,bg(p-off).g,bg(p-off*.94).b);
   col*=1.-shade*(1.-uDark);col+=shade*uDark*.04;
-  col=mix(col,mix(vec3(1.),vec3(.6,.63,.7),uDark),tint*mix(.5,.6,uDark));
+  col=mix(col,mix(vec3(.87,.89,.93),vec3(.6,.63,.7),uDark),tint*mix(.7,.6,uDark));
   col+=spec*mix(.2,.16,uDark);
   col=mix(col,vec3(1.),edge*mix(.3,.22,uDark));
   gl_FragColor=vec4(col,1.);
