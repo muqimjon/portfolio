@@ -1,0 +1,11 @@
+<div class="text">
+  <div class="hi">{{ state.t().hi }}</div>
+  <h1>
+    {{ state.t().role1 }}<br /><span>{{ state.t().role2 }}</span>
+  </h1>
+  <p>{{ state.t().intro }}</p>
+  <div class="cta">
+    <button bubble [radius]="24" (click)="state.go('work')">{{ state.t().ctaWork }} →</button>
+    <a bubble [radius]="24" [href]="resume" target="_blank">{{ state.t().ctaResume }} ↗</a>
+  </div>
+</div>

@@ -1,0 +1,118 @@
+:host {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  font-family: 'Manrope', system-ui, sans-serif;
+  color: var(--ink);
+}
+
+canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.photo {
+  position: absolute;
+  right: 7vw;
+  bottom: 11vh;
+  width: min(30vw, 400px);
+  height: min(64vh, 560px);
+  margin: 0 auto;
+  z-index: 4;
+  transition: all 0.9s cubic-bezier(0.3, 1.25, 0.4, 1);
+  animation: dropIn 1.2s cubic-bezier(0.2, 1.3, 0.3, 1) 0.25s backwards;
+}
+
+:host(:not([data-tab='home'])) .photo {
+  right: 28px;
+  bottom: 28px;
+  width: 140px;
+  height: 186px;
+}
+
+.sig {
+  position: absolute;
+  left: 5vw;
+  bottom: 26px;
+  font:
+    600 clamp(24px, 2.2vw, 32px) / 1 'Caveat',
+    cursive;
+  color: transparent;
+  background-image: linear-gradient(var(--ink), var(--ink));
+  background-size: 0% 100%;
+  background-repeat: no-repeat;
+  background-position: left;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: write 2.4s cubic-bezier(0.45, 0, 0.15, 1) 0.3s forwards;
+  z-index: 3;
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+
+:host([data-tab='work']) .sig {
+  opacity: 0;
+}
+
+.status {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 30px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 500 11.5px 'JetBrains Mono';
+  color: var(--ink2);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  z-index: 3;
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #38c172;
+  animation: blink 2.2s ease-in-out infinite;
+}
+
+:host([data-tab='work']) .status,
+:host([data-tab='contact']) .status {
+  opacity: 0;
+}
+
+@media (max-width: 760px) {
+  .photo {
+    right: 0;
+    left: 0;
+    bottom: 58vh;
+    width: min(58vw, 230px);
+    height: 34vh;
+  }
+
+  :host(:not([data-tab='home'])) .photo {
+    right: 16px;
+    left: auto;
+    bottom: calc(88px + env(safe-area-inset-bottom));
+    width: 84px;
+    height: 112px;
+  }
+
+  .sig {
+    bottom: 86px;
+  }
+
+  :host(:not([data-tab='home'])) .sig {
+    opacity: 0;
+  }
+
+  .status {
+    opacity: 0;
+  }
+}

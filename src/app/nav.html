@@ -1,0 +1,17 @@
+<div class="ind" #ind bubble [radius]="20" [indicator]="true"></div>
+
+@for (tab of tabs; track tab; let i = $index) {
+  <button #tabEl class="tab" [class.on]="state.tab() === tab" (click)="state.go(tab)">
+    {{ state.t().nav[i] }}
+  </button>
+}
+
+<div class="divider"></div>
+
+<button class="lang" bubble [radius]="18" (click)="state.toggleLang()">
+  {{ state.lang().toUpperCase() }}
+</button>
+
+<button class="theme" bubble [radius]="18" (click)="state.toggleDark()">
+  {{ state.dark() ? '☼' : '☾' }}
+</button>

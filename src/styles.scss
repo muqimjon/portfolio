@@ -1,1 +1,80 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  --ink: #eef0f4;
+  --ink2: rgba(238, 240, 244, 0.64);
+  --fill: rgba(255, 255, 255, 0.08);
+  --bg: #121316;
+}
+
+:root.light {
+  --ink: #15171c;
+  --ink2: rgba(21, 23, 28, 0.62);
+  --fill: rgba(21, 23, 28, 0.06);
+  --bg: #f1f2f4;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (pointer: fine) {
+  body,
+  body * {
+    cursor: none !important;
+  }
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+@keyframes dropIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-46px) scale(0.9);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(8px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes write {
+  to {
+    background-size: 100% 100%;
+  }
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}

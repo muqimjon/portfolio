@@ -1,0 +1,24 @@
+<div class="grid">
+  @for (p of projects; track p.key; let i = $index) {
+    <article glass tilt [radius]="28" [style.animation-delay.s]="i * 0.08">
+      <div class="head">
+        <div class="title">
+          <img class="logo" [class.round]="p.key === 'kotib'" [src]="logo(p)" alt="" />
+          <h3>{{ p.name }}</h3>
+        </div>
+        <span class="status">{{ state.t().st[p.st] }}</span>
+      </div>
+      <p>{{ state.t().pd[p.key] }}</p>
+      <div class="stack">
+        @for (s of p.stack; track s) {
+          <span>{{ s }}</span>
+        }
+      </div>
+      <div class="links">
+        @for (l of p.links; track l.href) {
+          <a bubble [radius]="16" [href]="l.href" target="_blank">{{ l.label }} ↗</a>
+        }
+      </div>
+    </article>
+  }
+</div>
