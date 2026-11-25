@@ -71,7 +71,7 @@ export const T: Record<Lang, Copy> = {
     role1: '.NET Backend',
     role2: 'dasturchi',
     intro:
-      "Real mijozlar har kuni ishlatadigan tizimlar: Clean Architecture, CQRS, PostgreSQL, Docker. Kerak bo'lsa mahsulot veb, desktop va mobil interfeyslari bilan boshdan oxirigacha olib chiqiladi.",
+      "Biznes uchun dasturlar yarataman: do'kon savdosi, zavod ombori, call-center hisoboti. Odamlar ularni har kuni ishlatadi — kompyuterda, telefonda va vebda.",
     ctaWork: "Loyihalarni ko'rish",
     ctaResume: 'Resume',
     contactTitle: 'Gaplashamizmi?',
@@ -114,7 +114,7 @@ export const T: Record<Lang, Copy> = {
     role1: '.NET Backend',
     role2: 'Developer',
     intro:
-      'Systems real clients use every day: Clean Architecture, CQRS, PostgreSQL, Docker. When it is needed, the product ships end to end, with its web, desktop and mobile interfaces.',
+      'I build software for businesses: a shop’s sales, a factory’s warehouse, a call centre’s reports. People use it every day — on computers, on phones and on the web.',
     ctaWork: 'See the work',
     ctaResume: 'Resume',
     contactTitle: 'Let’s talk.',
