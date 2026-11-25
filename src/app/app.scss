@@ -37,6 +37,10 @@ canvas {
   position: absolute;
   left: 5vw;
   bottom: 26px;
+  // background-clip: text paints only inside the box, and Caveat's descenders and the
+  // last glyph's overhang fall outside it; the negative margin keeps the text in place.
+  padding: 0 0.3em 0.3em 0;
+  margin-bottom: -0.3em;
   font:
     600 clamp(24px, 2.2vw, 32px) / 1 'Caveat',
     cursive;
